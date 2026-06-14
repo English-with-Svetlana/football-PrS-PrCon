@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Football Grammar Game</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; background: transparent; }
+#game-container { width: 100%; height: 100%; position: relative; overflow: hidden; background: transparent; }
+.player { width: 90px; height: 90px; position: absolute; cursor: pointer; transition: transform 0.1s, filter 0.3s; z-index: 1; }
+.player:hover { transform: scale(1.15); filter: drop-shadow(0 0 8px #ffd700); }
+.player.disabled { filter: brightness(0.3) drop-shadow(0 0 10px rgba(0,0,0,0.8)); cursor: default; pointer-events: none; }
+.ball { width: 20px; height: 20px; position: absolute; z-index: 0; pointer-events: none; }
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1000; justify-content: center; align-items: center; }
+.modal-overlay.active { display: flex; }
+.modal-box { background: linear-gradient(135deg, #0a4e0a 0%, #1b8e2e 50%, #0a4e0a 100%); border: 3px solid #ffd700; border-radius: 20px; padding: 30px 35px; max-width: 500px; width: 90%; position: relative; box-shadow: 0 0 30px rgba(255, 215, 0, 0.4), 0 0 60px rgba(34, 139, 34, 0.3); animation: modalAppear 0.4s ease-out; }
+@keyframes modalAppear { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.close-btn { position: absolute; top: 12px; right: 15px; width: 32px; height: 32px; border: 2px solid #ffd700; border-radius: 50%; background: rgba(0,0,0,0.4); color: #ffd700; font-size: 20px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; line-height: 1; }
+.close-btn:hover { background: rgba(255,215,0,0.3); transform: scale(1.1); }
+.modal-sentence { font-size: 20px; color: #f0fff0; text-align: center; margin-bottom: 25px; font-family: Georgia, serif; line-height: 1.5; text-shadow: 0 0 10px rgba(255, 215, 0, 0.3); padding-right: 30px; }
+.modal-options { display: flex; flex-direction: column; gap: 12px; }
+.option-btn { padding: 14px 20px; font-size: 17px; border: 2px solid #ffd700; border-radius: 12px; background: linear-gradient(135deg, rgba(34, 100, 34, 0.6), rgba(60, 180, 60, 0.4)); color: #f0fff0; cursor: pointer; transition: all 0.3s; font-family: Georgia, serif; }
+.option-btn:hover { background: linear-gradient(135deg, rgba(60, 180, 60, 0.6), rgba(255, 215, 0, 0.3)); box-shadow: 0 0 15px rgba(255, 215, 0, 0.3); transform: translateY(-2px); }
+.option-btn.correct { background: linear-gradient(135deg, #1b5e20, #4caf50) !important; border-color: #4caf50 !important; box-shadow: 0 0 20px rgba(76, 175, 80, 0.5); animation: correctPulse 0.5s; }
+.option-btn.wrong { background: linear-gradient(135deg, #b71c1c, #f44336) !important; border-color: #f44336 !important; box-shadow: 0 0 20px rgba(244, 67, 54, 0.5); animation: wrongShake 0.5s; }
+@keyframes correctPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+@keyframes wrongShake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-8px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(5px); } }
+.firework { position: fixed; pointer-events: none; z-index: 2000; }
+.firework-particle { position: absolute; width: 6px; height: 6px; border-radius: 50%; animation: fireworkBurst 1s ease-out forwards; }
+@keyframes fireworkBurst { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; } }
+.final-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: 3000; justify-content: center; align-items: center; flex-direction: column; }
+.final-overlay.active { display: flex; }
+.final-box { background: linear-gradient(135deg, #0a4e0a 0%, #1b8e2e 50%, #0a4e0a 100%); border: 3px solid #ffd700; border-radius: 20px; padding: 40px 50px; max-width: 500px; width: 90%; position: relative; box-shadow: 0 0 30px rgba(255, 215, 0, 0.4), 0 0 60px rgba(34, 139, 34, 0.3); animation: modalAppear 0.4s ease-out; text-align: center; }
+.final-text { font-size: 50px; font-family: Georgia, serif; color: #ffd700; text-shadow: 0 0 30px rgba(255, 215, 0, 0.8), 0 0 60px rgba(34, 139, 34, 0.5); animation: finalPulse 2s infinite; }
+@keyframes finalPulse { 0%, 100% { transform: scale(1); text-shadow: 0 0 30px rgba(255, 215, 0, 0.8); } 50% { transform: scale(1.05); text-shadow: 0 0 50px rgba(255, 215, 0, 1), 0 0 80px rgba(34, 139, 34, 0.6); } }
+.final-firework { position: fixed; pointer-events: none; z-index: 3001; }
+.final-particle { position: absolute; width: 8px; height: 8px; border-radius: 50%; animation: finalBurst 1.5s ease-out forwards; }
+@keyframes finalBurst { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; } }
+</style>
+</head>
+<body>
+<div id="game-container"></div>
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-box">
+    <button class="close-btn" id="close-btn">&times;</button>
+    <div class="modal-sentence" id="modal-sentence"></div>
+    <div class="modal-options" id="modal-options"></div>
+  </div>
+</div>
+<div class="final-overlay" id="final-overlay">
+  <div class="final-box">
+    <div class="final-text">🎉 Well done! ⚽</div>
+  </div>
+</div>
+<script>
+if (window.__footballGameStarted) {
+  if (window.__footballAnimFrame) cancelAnimationFrame(window.__footballAnimFrame);
+  document.getElementById("game-container").innerHTML = "";
+  playerElements = [];
+}
+window.__footballGameStarted = true;
+
+const tasks = [
+  { sentence: "My dad ___ (like) football.", options: ["like", "likes", "is liking"], correct: 1 },
+  { sentence: "His children ___ (play) football now.", options: ["play", "plays", "are playing"], correct: 2 },
+  { sentence: "Her daughter ___ (hate) shopping.", options: ["hate", "hates", "is hating"], correct: 1 },
+  { sentence: "I ___ (go) for a walk right now.", options: ["go", "am going", "goes"], correct: 1 },
+  { sentence: "Our son ___ (make) dinner at the moment.", options: ["makes", "is making", "make"], correct: 1 },
+  { sentence: "Their dogs often ___ (eat) meat.", options: ["eats", "are eating", "eat"], correct: 2 },
+  { sentence: "This woman ___ (do) yoga at the moment.", options: ["does", "is doing", "do"], correct: 1 },
+  { sentence: "Those people ___ (travel) every year.", options: ["travels", "are travelling", "travel"], correct: 2 },
+  { sentence: "That man usually ___ (watch) TV at night.", options: ["watch", "watches", "is watching"], correct: 1 },
+  { sentence: "Those cats ___ (sleep) now.", options: ["sleep", "sleeps", "are sleeping"], correct: 2 },
+  { sentence: "His brother never ___ (have) tea for breakfast.", options: ["have", "has", "is having"], correct: 1 },
+  { sentence: "Her husband ___ (run) now.", options: ["runs", "is running", "run"], correct: 1 }
+];
+
+const playerImages = [
+  "https://i.ibb.co/6Rfn9cLX/1.png",
+  "https://i.ibb.co/93NNk0Hp/2.png",
+  "https://i.ibb.co/KjGF4T9T/3.png",
+  "https://i.ibb.co/KRjNZfh/4.png",
+  "https://i.ibb.co/Mk6n9rt0/5.png",
+  "https://i.ibb.co/pYG3N41/6.png",
+  "https://i.ibb.co/DPQtPC9y/7.png",
+  "https://i.ibb.co/V0wBJKwT/8.png",
+  "https://i.ibb.co/S73nD60Y/9.png",
+  "https://i.ibb.co/27mZBcM4/10.png",
+  "https://i.ibb.co/trG4zSw/11.png",
+  "https://i.ibb.co/6Js49G4D/12.png"
+];
+
+const ballImage = "https://i.ibb.co/gqGdGFx/22-11.png";
+
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx;
+function getAudioCtx() { if (!audioCtx) audioCtx = new AudioCtx(); return audioCtx; }
+
+function playKickSound() {
+  const ctx = getAudioCtx();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.type = "triangle";
+  osc.frequency.setValueAtTime(150, ctx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(60, ctx.currentTime + 0.15);
+  gain.gain.setValueAtTime(0.5, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+  osc.start(ctx.currentTime);
+  osc.stop(ctx.currentTime + 0.2);
+
+  const noise = ctx.createBufferSource();
+  const bufferSize = ctx.sampleRate * 0.1;
+  const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) {
+    data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.1));
+  }
+  noise.buffer = buffer;
+  const noiseGain = ctx.createGain();
+  noise.connect(noiseGain);
+  noiseGain.connect(ctx.destination);
+  noiseGain.gain.setValueAtTime(0.3, ctx.currentTime);
+  noiseGain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+  noise.start(ctx.currentTime);
+}
+
+function playCorrectSound() {
+  const ctx = getAudioCtx();
+  const notes = [523, 659, 784, 1047];
+  notes.forEach((freq, i) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.12);
+    gain.gain.setValueAtTime(0.25, ctx.currentTime + i * 0.12);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.12 + 0.3);
+    osc.start(ctx.currentTime + i * 0.12);
+    osc.stop(ctx.currentTime + i * 0.12 + 0.3);
+  });
+}
+
+function playWrongSound() {
+  const ctx = getAudioCtx();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.type = "sawtooth";
+  osc.frequency.setValueAtTime(200, ctx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.4);
+  gain.gain.setValueAtTime(0.2, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+  osc.start(ctx.currentTime);
+  osc.stop(ctx.currentTime + 0.4);
+}
+
+function playVictorySound() {
+  const ctx = getAudioCtx();
+  const melody = [523, 587, 659, 784, 880, 1047, 1175, 1319];
+  melody.forEach((freq, i) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.15);
+    gain.gain.setValueAtTime(0.2, ctx.currentTime + i * 0.15);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.15 + 0.4);
+    osc.start(ctx.currentTime + i * 0.15);
+    osc.stop(ctx.currentTime + i * 0.15 + 0.4);
+  });
+}
+
+function createFirework(x, y, container, count = 20) {
+  const fw = document.createElement("div");
+  fw.className = container === document.body ? "final-firework" : "firework";
+  fw.style.left = x + "px";
+  fw.style.top = y + "px";
+  const colors = ["#ffd700", "#ff69b4", "#9b59b6", "#e74c3c", "#3498db", "#2ecc71", "#ff4500"];
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement("div");
+    const angle = (Math.PI * 2 / count) * i;
+    const dist = 40 + Math.random() * 60;
+    const tx = Math.cos(angle) * dist;
+    const ty = Math.sin(angle) * dist;
+    p.className = container === document.body ? "final-particle" : "firework-particle";
+    p.style.setProperty("--tx", tx + "px");
+    p.style.setProperty("--ty", ty + "px");
+    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+    p.style.left = "0px";
+    p.style.top = "0px";
+    fw.appendChild(p);
+  }
+  container.appendChild(fw);
+  setTimeout(() => fw.remove(), 1500);
+}
+
+let playerElements = [];
+let ballElement = null;
+let currentPlayerIndex = -1;
+let playersRemaining = 12;
+let answered = false;
+const container = document.getElementById("game-container");
+
+function createPlayers() {
+  for (let i = 0; i < 12; i++) {
+    const player = document.createElement("img");
+    player.src = playerImages[i];
+    player.className = "player";
+    player.dataset.index = i;
+    const maxX = window.innerWidth - 90;
+    const maxY = window.innerHeight - 90;
+    let x = Math.random() * maxX;
+    let y = Math.random() * maxY;
+    player.style.left = x + "px";
+    player.style.top = y + "px";
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 0.15 + Math.random() * 0.3;
+    player.dataset.vx = Math.cos(angle) * speed;
+    player.dataset.vy = Math.sin(angle) * speed;
+    player.dataset.x = x;
+    player.dataset.y = y;
+
+    player.addEventListener("click", function(e) {
+      e.stopPropagation();
+      if (currentPlayerIndex !== -1 || this.classList.contains("disabled")) return;
+      const idx = parseInt(this.dataset.index);
+      currentPlayerIndex = idx;
+      answered = false;
+      playKickSound();
+      setTimeout(() => showModal(idx), 100);
+    });
+
+    container.appendChild(player);
+    playerElements.push(player);
+  }
+}
+
+function createBall() {
+  ballElement = document.createElement("img");
+  ballElement.src = ballImage;
+  ballElement.className = "ball";
+  const maxX = window.innerWidth - 20;
+  const maxY = window.innerHeight - 20;
+  let x = Math.random() * maxX;
+  let y = Math.random() * maxY;
+  ballElement.style.left = x + "px";
+  ballElement.style.top = y + "px";
+  const angle = Math.random() * Math.PI * 2;
+  const speed = 0.3 + Math.random() * 0.5;
+  ballElement.dataset.vx = Math.cos(angle) * speed;
+  ballElement.dataset.vy = Math.sin(angle) * speed;
+  ballElement.dataset.x = x;
+  ballElement.dataset.y = y;
+  container.appendChild(ballElement);
+}
+
+function animateEntities() {
+  const maxXP = window.innerWidth - 90;
+  const maxYP = window.innerHeight - 90;
+  const maxXB = window.innerWidth - 20;
+  const maxYB = window.innerHeight - 20;
+
+  playerElements.forEach(player => {
+    if (player.classList.contains("disabled")) return;
+    let x = parseFloat(player.dataset.x);
+    let y = parseFloat(player.dataset.y);
+    let vx = parseFloat(player.dataset.vx);
+    let vy = parseFloat(player.dataset.vy);
+    if (Math.random() < 0.02) {
+      vx += (Math.random() - 0.5) * 0.4;
+      vy += (Math.random() - 0.5) * 0.4;
+      const speed = Math.sqrt(vx * vx + vy * vy);
+      if (speed > 0.6) { vx = (vx / speed) * 0.6; vy = (vy / speed) * 0.6; }
+      if (speed < 0.08) { vx = (vx / speed) * 0.15; vy = (vy / speed) * 0.15; }
+    }
+    x += vx;
+    y += vy;
+    if (x <= 0) { x = 0; vx = Math.abs(vx); }
+    if (x >= maxXP) { x = maxXP; vx = -Math.abs(vx); }
+    if (y <= 0) { y = 0; vy = Math.abs(vy); }
+    if (y >= maxYP) { y = maxYP; vy = -Math.abs(vy); }
+    player.dataset.x = x;
+    player.dataset.y = y;
+    player.dataset.vx = vx;
+    player.dataset.vy = vy;
+    player.style.left = x + "px";
+    player.style.top = y + "px";
+    if (vx < 0) { player.style.transform = "scaleX(-1)"; }
+    else { player.style.transform = "scaleX(1)"; }
+  });
+
+  if (ballElement) {
+    let bx = parseFloat(ballElement.dataset.x);
+    let by = parseFloat(ballElement.dataset.y);
+    let bvx = parseFloat(ballElement.dataset.vx);
+    let bvy = parseFloat(ballElement.dataset.vy);
+    if (Math.random() < 0.03) {
+      bvx += (Math.random() - 0.5) * 0.6;
+      bvy += (Math.random() - 0.5) * 0.6;
+      const speed = Math.sqrt(bvx * bvx + bvy * bvy);
+      if (speed > 0.8) { bvx = (bvx / speed) * 0.8; bvy = (bvy / speed) * 0.8; }
+      if (speed < 0.15) { bvx = (bvx / speed) * 0.25; bvy = (bvy / speed) * 0.25; }
+    }
+    bx += bvx;
+    by += bvy;
+    if (bx <= 0) { bx = 0; bvx = Math.abs(bvx); }
+    if (bx >= maxXB) { bx = maxXB; bvx = -Math.abs(bvx); }
+    if (by <= 0) { by = 0; bvy = Math.abs(bvy); }
+    if (by >= maxYB) { by = maxYB; bvy = -Math.abs(bvy); }
+    ballElement.dataset.x = bx;
+    ballElement.dataset.y = by;
+    ballElement.dataset.vx = bvx;
+    ballElement.dataset.vy = bvy;
+    ballElement.style.left = bx + "px";
+    ballElement.style.top = by + "px";
+  }
+
+  window.__footballAnimFrame = requestAnimationFrame(animateEntities);
+}
+
+function showModal(index) {
+  const task = tasks[index];
+  const overlay = document.getElementById("modal-overlay");
+  const sentenceEl = document.getElementById("modal-sentence");
+  const optionsEl = document.getElementById("modal-options");
+  sentenceEl.textContent = task.sentence;
+  optionsEl.innerHTML = "";
+  task.options.forEach((opt, i) => {
+    const btn = document.createElement("button");
+    btn.className = "option-btn";
+    btn.textContent = opt;
+    btn.addEventListener("click", () => onOptionClick(btn, i, task.correct));
+    optionsEl.appendChild(btn);
+  });
+  overlay.classList.add("active");
+}
+
+function onOptionClick(btn, selected, correct) {
+  if (answered) return;
+  if (selected === correct) {
+    answered = true;
+    btn.classList.add("correct");
+    playCorrectSound();
+    const rect = btn.getBoundingClientRect();
+    createFirework(rect.left + rect.width / 2, rect.top + rect.height / 2, document.body, 25);
+    setTimeout(() => closeModal(), 1500);
+  } else {
+    btn.classList.add("wrong");
+    playWrongSound();
+    setTimeout(() => { btn.classList.remove("wrong"); }, 600);
+  }
+}
+
+function closeModal() {
+  const overlay = document.getElementById("modal-overlay");
+  overlay.classList.remove("active");
+  playKickSound();
+  if (currentPlayerIndex !== -1) {
+    const player = playerElements[currentPlayerIndex];
+    player.classList.add("disabled");
+    playersRemaining--;
+    if (playersRemaining <= 0) {
+      setTimeout(showFinalScreen, 500);
+    }
+  }
+  currentPlayerIndex = -1;
+}
+
+document.getElementById("close-btn").addEventListener("click", function() {
+  closeModal();
+});
+
+function showFinalScreen() {
+  const finalOverlay = document.getElementById("final-overlay");
+  finalOverlay.classList.add("active");
+  playVictorySound();
+  const finalBox = document.querySelector(".final-box");
+  const boxRect = finalBox.getBoundingClientRect();
+  const centerX = boxRect.left + boxRect.width / 2;
+  const centerY = boxRect.top + boxRect.height / 2;
+  let count = 0;
+  const interval = setInterval(() => {
+    const x = centerX + (Math.random() - 0.5) * 200;
+    const y = centerY + (Math.random() - 0.5) * 200;
+    createFirework(x, y, document.body, 30);
+    count++;
+    if (count > 15) clearInterval(interval);
+  }, 400);
+}
+
+createPlayers();
+createBall();
+animateEntities();
+</script>
+</body>
+</html>
