@@ -11,34 +11,28 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html, body { width: 100%; height: 100%; overflow: hidden; background: transparent; }
 #game-container { width: 100%; height: 100%; position: relative; overflow: hidden; background: transparent; }
-.player { width: 90px; height: 90px; position: absolute; cursor: pointer; transition: transform 0.1s, filter 0.3s; z-index: 1; }
+.player { height: 100px; width: auto; position: absolute; cursor: pointer; transition: transform 0.1s, filter 0.5s; z-index: 1; }
 .player:hover { transform: scale(1.15); filter: drop-shadow(0 0 8px #ffd700); }
-.player.disabled { filter: brightness(0.3) drop-shadow(0 0 10px rgba(0,0,0,0.8)); cursor: default; pointer-events: none; }
+.player.disabled { filter: brightness(0.25) drop-shadow(0 0 12px rgba(0,0,0,0.9)); cursor: default; }
 .ball { width: 20px; height: 20px; position: absolute; z-index: 0; pointer-events: none; }
 .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1000; justify-content: center; align-items: center; }
 .modal-overlay.active { display: flex; }
-.modal-box { background: linear-gradient(135deg, #0a4e0a 0%, #1b8e2e 50%, #0a4e0a 100%); border: 3px solid #ffd700; border-radius: 20px; padding: 30px 35px; max-width: 500px; width: 90%; position: relative; box-shadow: 0 0 30px rgba(255, 215, 0, 0.4), 0 0 60px rgba(34, 139, 34, 0.3); animation: modalAppear 0.4s ease-out; }
+.modal-box { background: linear-gradient(135deg, #0a4e0a 0%, #1b8e2e 50%, #0a4e0a 100%); border: 3px solid #ffd700; border-radius: 20px; padding: 35px 40px; max-width: 500px; width: 90%; position: relative; box-shadow: 0 0 30px rgba(255, 215, 0, 0.4), 0 0 60px rgba(34, 139, 34, 0.3); animation: modalAppear 0.4s ease-out; }
 @keyframes modalAppear { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 .close-btn { position: absolute; top: 12px; right: 15px; width: 32px; height: 32px; border: 2px solid #ffd700; border-radius: 50%; background: rgba(0,0,0,0.4); color: #ffd700; font-size: 20px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; line-height: 1; }
 .close-btn:hover { background: rgba(255,215,0,0.3); transform: scale(1.1); }
-.modal-sentence { font-size: 20px; color: #f0fff0; text-align: center; margin-bottom: 25px; font-family: Georgia, serif; line-height: 1.5; text-shadow: 0 0 10px rgba(255, 215, 0, 0.3); padding-right: 30px; }
-.modal-options { display: flex; flex-direction: column; gap: 12px; }
-.option-btn { padding: 14px 20px; font-size: 17px; border: 2px solid #ffd700; border-radius: 12px; background: linear-gradient(135deg, rgba(34, 100, 34, 0.6), rgba(60, 180, 60, 0.4)); color: #f0fff0; cursor: pointer; transition: all 0.3s; font-family: Georgia, serif; }
-.option-btn:hover { background: linear-gradient(135deg, rgba(60, 180, 60, 0.6), rgba(255, 215, 0, 0.3)); box-shadow: 0 0 15px rgba(255, 215, 0, 0.3); transform: translateY(-2px); }
-.option-btn.correct { background: linear-gradient(135deg, #1b5e20, #4caf50) !important; border-color: #4caf50 !important; box-shadow: 0 0 20px rgba(76, 175, 80, 0.5); animation: correctPulse 0.5s; }
-.option-btn.wrong { background: linear-gradient(135deg, #b71c1c, #f44336) !important; border-color: #f44336 !important; box-shadow: 0 0 20px rgba(244, 67, 54, 0.5); animation: wrongShake 0.5s; }
-@keyframes correctPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-@keyframes wrongShake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-8px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(5px); } }
-.firework { position: fixed; pointer-events: none; z-index: 2000; }
-.firework-particle { position: absolute; width: 6px; height: 6px; border-radius: 50%; animation: fireworkBurst 1s ease-out forwards; }
-@keyframes fireworkBurst { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; } }
+.modal-sentence { font-size: 22px; color: #f0fff0; text-align: center; margin-bottom: 10px; font-family: Georgia, serif; line-height: 1.5; text-shadow: 0 0 10px rgba(255, 215, 0, 0.3); padding-right: 30px; }
+.modal-hint { font-size: 14px; color: rgba(240,255,240,0.5); text-align: center; font-family: Georgia, serif; font-style: italic; }
 .final-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: 3000; justify-content: center; align-items: center; flex-direction: column; }
 .final-overlay.active { display: flex; }
 .final-box { background: linear-gradient(135deg, #0a4e0a 0%, #1b8e2e 50%, #0a4e0a 100%); border: 3px solid #ffd700; border-radius: 20px; padding: 40px 50px; max-width: 500px; width: 90%; position: relative; box-shadow: 0 0 30px rgba(255, 215, 0, 0.4), 0 0 60px rgba(34, 139, 34, 0.3); animation: modalAppear 0.4s ease-out; text-align: center; }
 .final-text { font-size: 50px; font-family: Georgia, serif; color: #ffd700; text-shadow: 0 0 30px rgba(255, 215, 0, 0.8), 0 0 60px rgba(34, 139, 34, 0.5); animation: finalPulse 2s infinite; }
 @keyframes finalPulse { 0%, 100% { transform: scale(1); text-shadow: 0 0 30px rgba(255, 215, 0, 0.8); } 50% { transform: scale(1.05); text-shadow: 0 0 50px rgba(255, 215, 0, 1), 0 0 80px rgba(34, 139, 34, 0.6); } }
 .final-firework { position: fixed; pointer-events: none; z-index: 3001; }
+.firework { position: fixed; pointer-events: none; z-index: 2000; }
 .final-particle { position: absolute; width: 8px; height: 8px; border-radius: 50%; animation: finalBurst 1.5s ease-out forwards; }
+.firework-particle { position: absolute; width: 6px; height: 6px; border-radius: 50%; animation: fireworkBurst 1s ease-out forwards; }
+@keyframes fireworkBurst { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; } }
 @keyframes finalBurst { 0% { transform: translate(0, 0) scale(1); opacity: 1; } 100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; } }
 </style>
 </head>
@@ -48,7 +42,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
   <div class="modal-box">
     <button class="close-btn" id="close-btn">&times;</button>
     <div class="modal-sentence" id="modal-sentence"></div>
-    <div class="modal-options" id="modal-options"></div>
+    <div class="modal-hint">Скажите правильный ответ устно, затем закройте окно</div>
   </div>
 </div>
 <div class="final-overlay" id="final-overlay">
@@ -65,18 +59,18 @@ if (window.__footballGameStarted) {
 window.__footballGameStarted = true;
 
 const tasks = [
-  { sentence: "My dad ___ (like) football.", options: ["like", "likes", "is liking"], correct: 1 },
-  { sentence: "His children ___ (play) football now.", options: ["play", "plays", "are playing"], correct: 2 },
-  { sentence: "Her daughter ___ (hate) shopping.", options: ["hate", "hates", "is hating"], correct: 1 },
-  { sentence: "I ___ (go) for a walk right now.", options: ["go", "am going", "goes"], correct: 1 },
-  { sentence: "Our son ___ (make) dinner at the moment.", options: ["makes", "is making", "make"], correct: 1 },
-  { sentence: "Their dogs often ___ (eat) meat.", options: ["eats", "are eating", "eat"], correct: 2 },
-  { sentence: "This woman ___ (do) yoga at the moment.", options: ["does", "is doing", "do"], correct: 1 },
-  { sentence: "Those people ___ (travel) every year.", options: ["travels", "are travelling", "travel"], correct: 2 },
-  { sentence: "That man usually ___ (watch) TV at night.", options: ["watch", "watches", "is watching"], correct: 1 },
-  { sentence: "Those cats ___ (sleep) now.", options: ["sleep", "sleeps", "are sleeping"], correct: 2 },
-  { sentence: "His brother never ___ (have) tea for breakfast.", options: ["have", "has", "is having"], correct: 1 },
-  { sentence: "Her husband ___ (run) now.", options: ["runs", "is running", "run"], correct: 1 }
+  "My dad ___ (like) football.",
+  "His children ___ (play) football now.",
+  "Her daughter ___ (hate) shopping.",
+  "I ___ (go) for a walk right now.",
+  "Our son ___ (make) dinner at the moment.",
+  "Their dogs often ___ (eat) meat.",
+  "This woman ___ (do) yoga at the moment.",
+  "Those people ___ (travel) every year.",
+  "That man usually ___ (watch) TV at night.",
+  "Those cats ___ (sleep) now.",
+  "His brother never ___ (have) tea for breakfast.",
+  "Her husband ___ (run) now."
 ];
 
 const playerImages = [
@@ -130,38 +124,6 @@ function playKickSound() {
   noise.start(ctx.currentTime);
 }
 
-function playCorrectSound() {
-  const ctx = getAudioCtx();
-  const notes = [523, 659, 784, 1047];
-  notes.forEach((freq, i) => {
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.12);
-    gain.gain.setValueAtTime(0.25, ctx.currentTime + i * 0.12);
-    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.12 + 0.3);
-    osc.start(ctx.currentTime + i * 0.12);
-    osc.stop(ctx.currentTime + i * 0.12 + 0.3);
-  });
-}
-
-function playWrongSound() {
-  const ctx = getAudioCtx();
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-  osc.connect(gain);
-  gain.connect(ctx.destination);
-  osc.type = "sawtooth";
-  osc.frequency.setValueAtTime(200, ctx.currentTime);
-  osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.4);
-  gain.gain.setValueAtTime(0.2, ctx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
-  osc.start(ctx.currentTime);
-  osc.stop(ctx.currentTime + 0.4);
-}
-
 function playVictorySound() {
   const ctx = getAudioCtx();
   const melody = [523, 587, 659, 784, 880, 1047, 1175, 1319];
@@ -207,7 +169,6 @@ let playerElements = [];
 let ballElement = null;
 let currentPlayerIndex = -1;
 let playersRemaining = 12;
-let answered = false;
 const container = document.getElementById("game-container");
 
 function createPlayers() {
@@ -216,8 +177,8 @@ function createPlayers() {
     player.src = playerImages[i];
     player.className = "player";
     player.dataset.index = i;
-    const maxX = window.innerWidth - 90;
-    const maxY = window.innerHeight - 90;
+    const maxX = window.innerWidth - 70;
+    const maxY = window.innerHeight - 100;
     let x = Math.random() * maxX;
     let y = Math.random() * maxY;
     player.style.left = x + "px";
@@ -234,7 +195,6 @@ function createPlayers() {
       if (currentPlayerIndex !== -1 || this.classList.contains("disabled")) return;
       const idx = parseInt(this.dataset.index);
       currentPlayerIndex = idx;
-      answered = false;
       playKickSound();
       setTimeout(() => showModal(idx), 100);
     });
@@ -264,13 +224,12 @@ function createBall() {
 }
 
 function animateEntities() {
-  const maxXP = window.innerWidth - 90;
-  const maxYP = window.innerHeight - 90;
+  const maxXP = window.innerWidth - 70;
+  const maxYP = window.innerHeight - 100;
   const maxXB = window.innerWidth - 20;
   const maxYB = window.innerHeight - 20;
 
   playerElements.forEach(player => {
-    if (player.classList.contains("disabled")) return;
     let x = parseFloat(player.dataset.x);
     let y = parseFloat(player.dataset.y);
     let vx = parseFloat(player.dataset.vx);
@@ -328,36 +287,11 @@ function animateEntities() {
 }
 
 function showModal(index) {
-  const task = tasks[index];
+  const sentence = tasks[index];
   const overlay = document.getElementById("modal-overlay");
   const sentenceEl = document.getElementById("modal-sentence");
-  const optionsEl = document.getElementById("modal-options");
-  sentenceEl.textContent = task.sentence;
-  optionsEl.innerHTML = "";
-  task.options.forEach((opt, i) => {
-    const btn = document.createElement("button");
-    btn.className = "option-btn";
-    btn.textContent = opt;
-    btn.addEventListener("click", () => onOptionClick(btn, i, task.correct));
-    optionsEl.appendChild(btn);
-  });
+  sentenceEl.textContent = sentence;
   overlay.classList.add("active");
-}
-
-function onOptionClick(btn, selected, correct) {
-  if (answered) return;
-  if (selected === correct) {
-    answered = true;
-    btn.classList.add("correct");
-    playCorrectSound();
-    const rect = btn.getBoundingClientRect();
-    createFirework(rect.left + rect.width / 2, rect.top + rect.height / 2, document.body, 25);
-    setTimeout(() => closeModal(), 1500);
-  } else {
-    btn.classList.add("wrong");
-    playWrongSound();
-    setTimeout(() => { btn.classList.remove("wrong"); }, 600);
-  }
 }
 
 function closeModal() {
