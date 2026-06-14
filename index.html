@@ -29,7 +29,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: transparen
 }
 
 /* УВЕЛИЧЕНО: мяч теперь 50x50 px */
-.ball { width: 50px; height: 50px; position: absolute; z-index: 0; pointer-events: none; }
+.ball { width: 20px; height: 20px; position: absolute; z-index: 0; pointer-events: none; }
 
 .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
 .modal-overlay.active { display: flex; }
@@ -252,8 +252,8 @@ function createBall() {
   ballElement.className = "ball";
   
   // ОБНОВЛЕНО: границы для размера мяча 50px
-  const maxX = window.innerWidth - 50;
-  const maxY = window.innerHeight - 50;
+  const maxX = window.innerWidth - 20;
+  const maxY = window.innerHeight - 20;
   let x = Math.random() * maxX;
   let y = Math.random() * maxY;
   
@@ -273,8 +273,8 @@ function animateEntities() {
   // ОБНОВЛЕНО: границы анимации под новые размеры
   const maxXP = window.innerWidth - 150;
   const maxYP = window.innerHeight - 150;
-  const maxXB = window.innerWidth - 50;
-  const maxYB = window.innerHeight - 50;
+  const maxXB = window.innerWidth - 20;
+  const maxYB = window.innerHeight - 20;
 
   playerElements.forEach(player => {
     let x = parseFloat(player.dataset.x);
